@@ -186,6 +186,25 @@ function getCardAnim(card: CardData, scrollY: number) {
   return { opacity: 0, tx: dir * 200 }
 }
 
+// Animação mobile: cada card tem janela própria de 450px, sequencial, fade + slide vertical
+const MOBILE_WINDOW = 450
+const MOBILE_ENTER  = 180
+const MOBILE_DWELL  = 120
+const MOBILE_EXIT   = 150
+
+function getMobileCardAnim(cardId: number, scrollY: number): { opacity: number; ty: number } {
+  const start = CARD_OFFSET + cardId * MOBILE_WINDOW
+  const rel   = scrollY - start
+  if (rel < 0)                                 return { opacity: 0, ty: 55 }
+  if (rel < MOBILE_ENTER)                      return { opacity: rel / MOBILE_ENTER, ty: lerp(55, 0, rel / MOBILE_ENTER) }
+  if (rel < MOBILE_ENTER + MOBILE_DWELL)       return { opacity: 1, ty: 0 }
+  if (rel < MOBILE_ENTER + MOBILE_DWELL + MOBILE_EXIT) {
+    const t = (rel - MOBILE_ENTER - MOBILE_DWELL) / MOBILE_EXIT
+    return { opacity: 1 - t, ty: lerp(0, -35, t) }
+  }
+  return { opacity: 0, ty: -35 }
+}
+
 // Animação exclusiva do card 4 (Evento Corporativo): surge do centro com fade + escala
 function getCard4Anim(scrollY: number) {
   const groupStart = CARD_OFFSET + getCardPairId(4) * GROUP_SCROLL
@@ -595,8 +614,8 @@ export function ImmersiveHome({ heroMedia, introVideo }: { heroMedia?: HeroMedia
               style={{
                 position: 'absolute',
                 left: '50%',
-                top: isMobile ? '42%' : '50%',
-                transform: `translate(-50%, -50%) ${isMobile ? 'scale(0.72)' : ''}`,
+                top: '50%',
+                transform: 'translate(-50%, -50%)',
                 zIndex: 8,
                 display: 'flex',
                 flexDirection: 'column',
@@ -620,8 +639,10 @@ export function ImmersiveHome({ heroMedia, introVideo }: { heroMedia?: HeroMedia
                 }}
               />
 
-              {/* Kart 3D */}
-              <KartViewer3D opacity={logoOpacity} />
+              {/* Kart 3D — wrapper de escala no mobile para caber na tela */}
+              <div style={{ transform: isMobile ? 'scale(0.62)' : 'none', transformOrigin: 'center center' }}>
+                <KartViewer3D opacity={logoOpacity} />
+              </div>
 
               {/* Label abaixo */}
               <div
@@ -655,7 +676,11 @@ export function ImmersiveHome({ heroMedia, introVideo }: { heroMedia?: HeroMedia
 
               // ── CARD 4 — grand finale, surge do centro sem slide lateral ──
               if (card.id === 4) {
-                const { opacity: op4, scale: sc4, ty: ty4 } = getCard4Anim(scrollY)
+                const desk4 = getCard4Anim(scrollY)
+                const mob4  = isMobile ? getMobileCardAnim(4, scrollY) : null
+                const op4 = mob4 ? mob4.opacity : desk4.opacity
+                const ty4 = mob4 ? mob4.ty      : desk4.ty
+                const sc4 = mob4 ? 1            : desk4.scale
                 return (
                   <Link
                     key={card.id}
@@ -767,8 +792,9 @@ export function ImmersiveHome({ heroMedia, introVideo }: { heroMedia?: HeroMedia
               }
 
               // ── CARDS 0–3 — layout padrão (pares) ─────────────────
-              // No mobile: centralizado, slide vertical
-              const mobileTy = tx !== 0 ? (tx > 0 ? 70 : -70) * Math.abs(tx) / 200 : 0
+              const mobileAnim = isMobile ? getMobileCardAnim(card.id, scrollY) : null
+              const finalOpacity = mobileAnim ? mobileAnim.opacity : opacity
+              const finalTy      = mobileAnim ? mobileAnim.ty : 0
               return (
                 <Link
                   key={card.id}
@@ -780,10 +806,10 @@ export function ImmersiveHome({ heroMedia, introVideo }: { heroMedia?: HeroMedia
                       ? { top: '52%', left: '50%', width: 'min(88vw, 300px)', height: 260 }
                       : { top: '50%', ...(isRight ? { left: 'calc(50% + 150px)' } : { right: 'calc(50% + 150px)' }), width: 400, height: 310 }
                     ),
-                    opacity,
-                    pointerEvents: opacity < 0.05 ? 'none' : 'auto',
+                    opacity: finalOpacity,
+                    pointerEvents: finalOpacity < 0.05 ? 'none' : 'auto',
                     transform: isMobile
-                      ? `translateX(-50%) translateY(calc(-50% + ${mobileTy}px))`
+                      ? `translateX(-50%) translateY(calc(-50% + ${finalTy}px))`
                       : `translateX(${tx}px) translateY(-50%)`,
                     transition: 'opacity 0.3s ease',
                     cursor: 'pointer',
