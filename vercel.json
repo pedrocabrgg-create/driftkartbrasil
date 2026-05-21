@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/expirar-reservas",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/lembrete-reservas",
+      "schedule": "0 10 * * *"
+    }
+  ]
+}

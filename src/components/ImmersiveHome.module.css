@@ -1,0 +1,126 @@
+.kartFloat {
+  animation: kartFloat 4s ease-in-out infinite;
+}
+
+@keyframes kartFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-18px) rotate(2deg);
+  }
+}
+
+.introText {
+  animation: pulseIntro 2s ease-in-out infinite;
+}
+
+@keyframes pulseIntro {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50%       { opacity: 1;    transform: scale(1.03); }
+}
+
+.introRing {
+  animation: ringPulse 2s ease-in-out infinite;
+}
+
+@keyframes ringPulse {
+  0%, 100% { transform: scale(1);    opacity: 0.5; }
+  50%       { transform: scale(1.08); opacity: 1; }
+}
+
+.scrollBar {
+  animation: scrollBarDown 1.8s ease-in-out infinite;
+  transform-origin: top;
+}
+
+@keyframes scrollBarDown {
+  0%   { transform: scaleY(0); transform-origin: top;    opacity: 1; }
+  60%  { transform: scaleY(1); transform-origin: top;    opacity: 1; }
+  100% { transform: scaleY(1); transform-origin: bottom; opacity: 0; }
+}
+
+/* ── Card hover ─────────────────────────── */
+.cardInner {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.cardWrap:hover .cardInner {
+  transform: scale(1.04);
+  box-shadow:
+    0 0 60px rgba(0, 0, 0, 0.8),
+    0 0 35px rgba(198, 241, 53, 0.25);
+}
+
+.cardTitle {
+  font-family: var(--font-bebas, var(--font-geist-mono, monospace));
+  transition: text-shadow 0.1s;
+}
+
+.cardWrap:hover .cardTitle {
+  animation: glitch 0.35s steps(1) infinite;
+}
+
+@keyframes glitch {
+  0%   { text-shadow:  2px  0   #c6f135, -2px  0   rgba(198,241,53,0.4); }
+  25%  { text-shadow: -2px  0   #c6f135,  2px  0   rgba(198,241,53,0.3); }
+  50%  { text-shadow:  2px  2px #c6f135, -2px -2px rgba(198,241,53,0.4); }
+  75%  { text-shadow: -2px -2px #c6f135,  2px  2px rgba(198,241,53,0.3); }
+  100% { text-shadow:  2px  0   #c6f135, -2px  0   rgba(198,241,53,0.4); }
+}
+
+/* ── Nav pill ───────────────────────────── */
+.navPill {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid rgba(198, 241, 53, 0.3);
+  border-radius: 999px;
+  padding: 8px 24px;
+}
+
+.navLink {
+  font-family: var(--font-bebas, var(--font-geist-mono, monospace));
+  font-size: 14px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  padding: 0 14px;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.navLink:hover {
+  color: #c6f135;
+}
+
+.navSep {
+  color: rgba(255, 255, 255, 0.15);
+  font-size: 10px;
+  user-select: none;
+}
+
+/* ── CTA pill ───────────────────────────── */
+.ctaPill {
+  font-family: var(--font-bebas, var(--font-geist-mono, monospace));
+  font-size: 14px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #c6f135;
+  border: 1px solid rgba(198, 241, 53, 0.5);
+  border-radius: 999px;
+  padding: 10px 24px;
+  text-decoration: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s;
+  white-space: nowrap;
+}
+
+.ctaPill:hover {
+  background: #c6f135;
+  color: #0a0a0a;
+}
