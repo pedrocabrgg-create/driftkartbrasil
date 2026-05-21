@@ -220,6 +220,7 @@ export function ImmersiveHome({ heroMedia, introVideo }: { heroMedia?: HeroMedia
   const particlesRef = useRef<Particle[]>([])
 
   const [scrollY, setScrollY] = useState(0)
+  const [isMobile, setIsMobile] = useState(false)
   // bgOpacity: controls only the dark #0a0a0a background layer
   const [bgOpacity, setBgOpacity] = useState(1)
   // contentOpacity: controls everything visible (cards, kart, particles, nav)
@@ -250,6 +251,14 @@ export function ImmersiveHome({ heroMedia, introVideo }: { heroMedia?: HeroMedia
       video?.removeEventListener('ended', dismiss)
       clearTimeout(fallback)
     }
+  }, [])
+
+  // ── mobile detection ──────────────────────────────────────────────────────
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
   }, [])
 
   // ── scroll listener ────────────────────────────────────────────────────────
@@ -459,7 +468,7 @@ export function ImmersiveHome({ heroMedia, introVideo }: { heroMedia?: HeroMedia
               left: 32,
               bottom: 88,
               zIndex: 20,
-              display: 'flex',
+              display: isMobile ? 'none' : 'flex',
               flexDirection: 'column',
               gap: 6,
             }}
@@ -502,7 +511,7 @@ export function ImmersiveHome({ heroMedia, introVideo }: { heroMedia?: HeroMedia
           </div>
 
           {/* ── CTA PILL ────────────────────────────────────────────── */}
-          <Link href="/agendar" className={styles.ctaPill} style={{ position: 'absolute', left: 32, bottom: 32, zIndex: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Link href="/agendar" className={styles.ctaPill} style={{ position: 'absolute', ...(isMobile ? { left: '50%', transform: 'translateX(-50%)' } : { left: 32 }), bottom: 32, zIndex: 20, display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
             <Image src="/images/logo.png" alt="" width={16} height={16} style={{ borderRadius: '50%', opacity: 0.85 }} />
             RESERVAR HORÁRIO
           </Link>
@@ -514,7 +523,7 @@ export function ImmersiveHome({ heroMedia, introVideo }: { heroMedia?: HeroMedia
               right: 32,
               bottom: 32,
               zIndex: 20,
-              display: 'flex',
+              display: isMobile ? 'none' : 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               gap: 8,
@@ -586,8 +595,8 @@ export function ImmersiveHome({ heroMedia, introVideo }: { heroMedia?: HeroMedia
               style={{
                 position: 'absolute',
                 left: '50%',
-                top: '50%',
-                transform: 'translate(-50%, -50%)',
+                top: isMobile ? '42%' : '50%',
+                transform: `translate(-50%, -50%) ${isMobile ? 'scale(0.72)' : ''}`,
                 zIndex: 8,
                 display: 'flex',
                 flexDirection: 'column',
@@ -654,10 +663,10 @@ export function ImmersiveHome({ heroMedia, introVideo }: { heroMedia?: HeroMedia
                     className={styles.cardWrap}
                     style={{
                       position: 'absolute',
-                      top: '62%',
+                      top: isMobile ? '50%' : '62%',
                       left: '50%',
-                      width: 700,
-                      height: 290,
+                      width: isMobile ? 'min(90vw, 340px)' : 700,
+                      height: isMobile ? 380 : 290,
                       opacity: op4,
                       pointerEvents: op4 < 0.05 ? 'none' : 'auto',
                       transform: `translateX(-50%) translateY(calc(-50% + ${ty4}px)) scale(${sc4})`,
@@ -678,10 +687,11 @@ export function ImmersiveHome({ heroMedia, introVideo }: { heroMedia?: HeroMedia
                         boxShadow: '0 0 60px rgba(198,241,53,0.12), 0 0 120px rgba(0,0,0,0.9)',
                         overflow: 'hidden',
                         display: 'flex',
+                        flexDirection: isMobile ? 'column' : 'row',
                       }}
                     >
-                      {/* Left: imagem (55%) */}
-                      <div style={{ flex: '0 0 55%', position: 'relative' }}>
+                      {/* Imagem: 55% horizontal no desktop, altura fixa no mobile */}
+                      <div style={{ flex: isMobile ? 'none' : '0 0 55%', height: isMobile ? 150 : undefined, position: 'relative' }}>
                         <Image src={cardMedia(card).src} alt={card.title} fill style={{ objectFit: 'cover', objectPosition: 'center' }} sizes="385px" />
                         <div style={{
                           position: 'absolute', inset: 0,
@@ -699,15 +709,15 @@ export function ImmersiveHome({ heroMedia, introVideo }: { heroMedia?: HeroMedia
                         </div>
                       </div>
 
-                      {/* Right: content panel (45%) */}
+                      {/* Content panel */}
                       <div style={{
                         flex: 1,
                         background: 'rgba(8,8,8,0.96)',
-                        padding: '28px 26px',
+                        padding: isMobile ? '16px 18px' : '28px 26px',
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'center',
-                        gap: 12,
+                        gap: isMobile ? 8 : 12,
                       }}>
                         <div>
                           <p style={{ ...mono, color: BRAND, fontSize: 9, letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: 8 }}>
@@ -715,7 +725,7 @@ export function ImmersiveHome({ heroMedia, introVideo }: { heroMedia?: HeroMedia
                           </p>
                           <p
                             className={styles.cardTitle}
-                            style={{ ...bebas, color: '#fff', fontSize: 32, fontWeight: 400, textTransform: 'uppercase', lineHeight: 1.0, letterSpacing: '0.04em', marginBottom: 10 }}
+                            style={{ ...bebas, color: '#fff', fontSize: isMobile ? 24 : 32, fontWeight: 400, textTransform: 'uppercase', lineHeight: 1.0, letterSpacing: '0.04em', marginBottom: isMobile ? 6 : 10 }}
                           >
                             EVENTO<br />CORPORATIVO
                           </p>
@@ -757,6 +767,8 @@ export function ImmersiveHome({ heroMedia, introVideo }: { heroMedia?: HeroMedia
               }
 
               // ── CARDS 0–3 — layout padrão (pares) ─────────────────
+              // No mobile: centralizado, slide vertical
+              const mobileTy = tx !== 0 ? (tx > 0 ? 70 : -70) * Math.abs(tx) / 200 : 0
               return (
                 <Link
                   key={card.id}
@@ -764,15 +776,15 @@ export function ImmersiveHome({ heroMedia, introVideo }: { heroMedia?: HeroMedia
                   className={styles.cardWrap}
                   style={{
                     position: 'absolute',
-                    top: '50%',
-                    ...(isRight
-                      ? { left: 'calc(50% + 150px)' }
-                      : { right: 'calc(50% + 150px)' }),
-                    width: 400,
-                    height: 310,
+                    ...(isMobile
+                      ? { top: '52%', left: '50%', width: 'min(88vw, 300px)', height: 260 }
+                      : { top: '50%', ...(isRight ? { left: 'calc(50% + 150px)' } : { right: 'calc(50% + 150px)' }), width: 400, height: 310 }
+                    ),
                     opacity,
                     pointerEvents: opacity < 0.05 ? 'none' : 'auto',
-                    transform: `translateX(${tx}px) translateY(-50%)`,
+                    transform: isMobile
+                      ? `translateX(-50%) translateY(calc(-50% + ${mobileTy}px))`
+                      : `translateX(${tx}px) translateY(-50%)`,
                     transition: 'opacity 0.3s ease',
                     cursor: 'pointer',
                     zIndex: 12,
@@ -792,7 +804,7 @@ export function ImmersiveHome({ heroMedia, introVideo }: { heroMedia?: HeroMedia
                         : '0 0 60px rgba(0,0,0,0.8)',
                       overflow: 'hidden',
                       position: 'relative',
-                      transform: `perspective(900px) rotateY(${isRight ? '-10deg' : '10deg'})`,
+                      transform: isMobile ? 'none' : `perspective(900px) rotateY(${isRight ? '-10deg' : '10deg'})`,
                     }}
                   >
                     {(() => { const m = cardMedia(card); return m.type === 'video' ? (
