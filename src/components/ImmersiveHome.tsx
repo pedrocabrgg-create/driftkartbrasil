@@ -639,10 +639,7 @@ export function ImmersiveHome({ heroMedia, introVideo }: { heroMedia?: HeroMedia
                 }}
               />
 
-              {/* Kart 3D — wrapper de escala no mobile para caber na tela */}
-              <div style={{ transform: isMobile ? 'scale(0.62)' : 'none', transformOrigin: 'center center' }}>
-                <KartViewer3D opacity={logoOpacity} />
-              </div>
+              <KartViewer3D opacity={logoOpacity} />
 
               {/* Label abaixo */}
               <div
